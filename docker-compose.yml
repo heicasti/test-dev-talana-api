@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.0
+    ports:
+      - 3025:3025
+
+  base: &base
+    build: .
+
+  web:
+    << : *base
+    command: python manage.py runserver 0.0.0.0:3000
+    volumes:
+      - .:/code
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - mailhog
+
+  test:
+    << : *base
+    command: pytest
